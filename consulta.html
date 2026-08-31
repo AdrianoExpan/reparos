@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Técnica - Expan Diesel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E8B730;
+            --secondary: #1A1A1A;
+            --accent: #2D2D2D;
+            --text-main: #F2F2F2;
+            --text-muted: #A0A0A0;
+            --glass-bg: rgba(45, 45, 45, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Abstract Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 15% 50%, rgba(26, 26, 26, 1), rgba(20, 20, 20, 1));
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232, 183, 48, 0.15) 0%, rgba(0,0,0,0) 70%);
+            animation: float 15s infinite ease-in-out alternate;
+        }
+
+        .p1 { width: 400px; height: 400px; top: -100px; left: -100px; }
+        .p2 { width: 600px; height: 600px; top: 40%; right: -200px; animation-delay: -5s; }
+        .p3 { width: 300px; height: 300px; bottom: -50px; left: 20%; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 30px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(180deg, rgba(26,26,26,0.9) 0%, rgba(26,26,26,0) 100%);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            max-height: 40px;
+            margin-bottom: 15px;
+        }
+
+        h1.title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--primary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Main Content Sections */
+        main {
+            padding: 40px 0;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .repair-code {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(232, 183, 48, 0.3);
+            display: inline-block;
+        }
+
+        .repair-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .section-title svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Application */
+        .application-text {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            background: rgba(232, 183, 48, 0.1);
+            border: 1px solid rgba(232, 183, 48, 0.3);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .chip:hover {
+            background: rgba(232, 183, 48, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .code-cell {
+            font-family: monospace;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Images */
+        .images-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media(min-width: 600px) {
+            .images-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .image-card {
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: var(--accent);
+            border: 1px solid var(--glass-border);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .image-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Compatible Injectors */
+        .injector-chips {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+        }
+
+        .injector-chip {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #ddd;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 20px;
+        }
+
+        .footer-logo {
+            height: 24px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation">
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+    </div>
+
+    <header>
+        <div class="container">
+            <img src="assets/logo-expan.png" alt="Expan Diesel Logo" class="logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNDAiPjx0ZXh0IHk9IjMwIiBmb250LWZhbWlseT0iSW50ZXIiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNFOEI3MzAiPkVYUEFOIERJRVNFTDwvdGV4dD48L3N2Zz4='">
+            <h1 class="title">Consulta Técnica</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <div class="hero reveal">
+            <div class="repair-code" id="display-id">EXP 18121998</div>
+            <div class="repair-subtitle">Reparo para Injetores Mercedes-Benz</div>
+        </div>
+
+        <section class="glass-card reveal">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                Aplicação
+            </h2>
+            <p class="application-text">Este reparo é aplicável nos injetores Mercedes-Benz dos motores:</p>
+            <div class="chips-container" id="motor-chips">
+                <div class="chip">OM900</div>
+                <div class="chip">OM904</div>
+                <div class="chip">OM906</div>
+                <div class="chip">OM924</div>
+                <div class="chip">OM926</div>
+            </div>
+        </section>
+
+        <section class="glass-card reveal">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M4,10h3v7H4V10z M10.5,10h3v7h-3V10z M2,19h20v3H2V19z M17,10h3v7h-3V10z M12,1L2,6v2h20V6L12,1z"/></svg>
+                Composição do Kit
+            </h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Componente</th>
+                            <th>Código Java</th>
+                            <th>Código Naut</th>
+                            <th>Código Bosch</th>
+                        </tr>
+                    </thead>
+                    <tbody id="composition-table">
+                        <tr>
+                            <td>Luva de vedação do bico (Menor)</td>
+                            <td><span class="code-cell">60805001</span></td>
+                            <td><span class="code-cell">350071</span></td>
+                            <td><span class="code-cell">F00ZW00003</span></td>
+                        </tr>
+                        <tr>
+                            <td>Anel do porta injetor</td>
+                            <td><span class="code-cell">30001016</span></td>
+                            <td><span class="code-cell">330083</span></td>
+                            <td><span class="code-cell">2430210081</span></td>
+                        </tr>
+                        <tr>
+                            <td>Anel da conexão do porta injetor</td>
+                            <td><span class="code-cell">30001014</span></td>
+                            <td><span class="code-cell">330115</span></td>
+                            <td><span class="code-cell">2430210082</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="images-grid">
+                <div class="image-card">
+                    <!-- Placeholder SVG used for preview if image is missing -->
+                    <img src="assets/img/injetor-explodido.jpg" alt="Vista Explodida do Injetor" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMkQyRDJEIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJJbnRlciIgZm9udC1zaXplPSIxNiIgZmlsbD0iI0EwQTBBMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2VtIEV4cGxvZGlkYTwvdGV4dD48L3N2Zz4='">
+                    <div class="image-caption">Vista Explodida do Injetor</div>
+                </div>
+                <div class="image-card">
+                    <img src="assets/img/injetor-montagem.jpg" alt="Montagem do Conjunto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMkQyRDJEIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJJbnRlciIgZm9udC1zaXplPSIxNiIgZmlsbD0iI0EwQTBBMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2VtIGRlIE1vbnRhZ2VtPC90ZXh0Pjwvc3ZnPg=='">
+                    <div class="image-caption">Montagem do Conjunto</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card reveal" style="margin-top: 24px;">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8 S16.41,20,12,20z M11,7h2v7h-2V7z M11,15h2v2h-2V15z"/></svg>
+                Porta-Injetores Compatíveis
+            </h2>
+            <div class="injector-chips" id="compatible-injectors">
+                <!-- Injetores serão injetados aqui -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <img src="assets/logo-expan.png" alt="Expan Diesel Logo" class="footer-logo" onerror="this.style.display='none'">
+        <p class="footer-text">© 2026 Expan Diesel — Qualidade e Precisão em Reparos Diesel</p>
+    </footer>
+
+    <script>
+        // Dados Mockados para futura integração dinâmica
+        const productData = {
+            "EXP18121998": {
+                subtitle: "Reparo para Injetores Mercedes-Benz",
+                motors: ["OM900", "OM904", "OM906", "OM924", "OM926"],
+                composition: [
+                    { comp: "Luva de vedação do bico (Menor)", java: "60805001", naut: "350071", bosch: "F00ZW00003" },
+                    { comp: "Anel do porta injetor", java: "30001016", naut: "330083", bosch: "2430210081" },
+                    { comp: "Anel da conexão do porta injetor", java: "30001014", naut: "330115", bosch: "2430210082" }
+                ],
+                compatible: [
+                    "0432191208", "0432191219", "0432191220", "0432191258", "0432191259", 
+                    "0432191271", "0432191285", "0432191301", "0432191302", "0432191303", 
+                    "0432191387", "0432193400", "0432193416", "0432193419", "0432193421", 
+                    "0432193436", "0432193444", "0432193445", "0432193449", "0432193479", 
+                    "0432193481"
+                ]
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // Lógica para ler hash e popular (simples)
+            let currentId = window.location.hash.substring(1).toUpperCase() || "EXP18121998";
+            
+            // Format ID for display if needed
+            let displayId = currentId.startsWith("EXP") ? currentId.replace("EXP", "EXP ") : currentId;
+            document.getElementById("display-id").textContent = displayId;
+            
+            const data = productData[currentId.replace(" ", "")] || productData["EXP18121998"];
+            
+            // Populate Compatible Injectors
+            const injectorsContainer = document.getElementById("compatible-injectors");
+            injectorsContainer.innerHTML = "";
+            data.compatible.forEach(code => {
+                const div = document.createElement("div");
+                div.className = "injector-chip";
+                div.textContent = code;
+                injectorsContainer.appendChild(div);
+            });
+
+            // Scroll Reveal Animation (Intersection Observer)
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const revealOnScroll = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // observer.unobserve(entry.target); // Optional: if you want it to happen only once
+                    }
+                });
+            }, {
+                root: null,
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+
+            reveals.forEach(element => {
+                revealOnScroll.observe(element);
+                
+                // Trigger for elements already in view on load
+                const rect = element.getBoundingClientRect();
+                if(rect.top < window.innerHeight) {
+                    element.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
