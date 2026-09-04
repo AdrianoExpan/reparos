@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expan Diesel — Painel Administrativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0D0D0D;
+            --panel: #1A1A1A;
+            --card: #222;
+            --border: rgba(255,255,255,0.08);
+            --yellow: #E8B730;
+            --yellow-dim: rgba(232,183,48,0.12);
+            --yellow-border: rgba(232,183,48,0.3);
+            --text: #FFF;
+            --muted: #888;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --radius: 12px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            background: var(--panel);
+            border-bottom: 3px solid var(--yellow);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header img { height: 38px; }
+        .header-title { font-size: 1.2rem; font-weight: 700; }
+        .header-title span { color: var(--yellow); }
+        .header-actions { margin-left: auto; display: flex; gap: 0.75rem; align-items: center; }
+
+        /* ─── LAYOUT ─── */
+        .layout { display: flex; flex: 1; }
+        .sidebar {
+            width: 230px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+        .sidebar-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            margin: 1rem 0.5rem 0.3rem;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background: var(--yellow-dim);
+            color: var(--yellow);
+        }
+        .sidebar-link .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+        .main { flex: 1; padding: 2rem; overflow-y: auto; }
+
+        /* ─── VIEWS ─── */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ─── PAGE TITLE ─── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .page-title { font-size: 1.5rem; font-weight: 700; }
+        .page-subtitle { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; }
+
+        /* ─── STATS ─── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            transition: border-color 0.2s;
+        }
+        .stat-card:hover { border-color: var(--yellow-border); }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--yellow); }
+        .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.2rem; }
+
+        /* ─── QUICK ACTIONS ─── */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .action-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .action-card:hover {
+            border-color: var(--yellow-border);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(232,183,48,0.1);
+        }
+        .action-icon { font-size: 2rem; }
+        .action-title { font-weight: 600; font-size: 0.95rem; }
+        .action-desc { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; }
+
+        /* ─── TABLE ─── */
+        .table-wrapper {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-toolbar-title { font-weight: 600; font-size: 0.95rem; }
+        .search-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            width: 220px;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { outline: none; border-color: var(--yellow); }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: rgba(0,0,0,0.3);
+            padding: 0.85rem 1.25rem;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        tbody td {
+            padding: 0.9rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+            vertical-align: middle;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: monospace;
+        }
+        .badge-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid var(--yellow-border); }
+        .badge-gray { background: rgba(255,255,255,0.06); color: #ccc; }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: var(--yellow); color: #000; }
+        .btn-primary:hover { background: #d1a52b; transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: var(--yellow); border: 1.5px solid var(--yellow-border); }
+        .btn-outline:hover { background: var(--yellow-dim); }
+        .btn-danger { background: transparent; color: var(--danger); border: 1.5px solid rgba(231,76,60,0.3); }
+        .btn-danger:hover { background: rgba(231,76,60,0.1); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+        .btn-success { background: var(--success); color: #000; }
+        .btn-success:hover { background: #27ae60; }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 750px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+        .modal-title { font-size: 1.2rem; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        /* ─── FORM ─── */
+        .form-section { margin-bottom: 1.75rem; }
+        .form-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--yellow);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.7rem 0.85rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            transition: border-color 0.15s;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--yellow);
+        }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+
+        /* ─── COMPONENTES REPETÍVEIS ─── */
+        .componente-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .componente-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            position: relative;
+        }
+        .componente-item .remove-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.15s;
+        }
+        .componente-item .remove-btn:hover { color: var(--danger); }
+        .add-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem;
+            background: var(--yellow-dim);
+            border: 1.5px dashed var(--yellow-border);
+            border-radius: 10px;
+            color: var(--yellow);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+        .add-btn:hover { background: rgba(232,183,48,0.2); }
+
+        /* ─── PORTA-INJETORES TAGS ─── */
+        .tags-input-area {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-content: flex-start;
+            cursor: text;
+            transition: border-color 0.15s;
+        }
+        .tags-input-area:focus-within { border-color: var(--yellow); }
+        .tag {
+            background: var(--yellow-dim);
+            border: 1px solid var(--yellow-border);
+            color: var(--yellow);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .tag .tag-remove {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.1s;
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+        .tag .tag-remove:hover { opacity: 1; }
+        .tag-input-field {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-family: monospace;
+            font-size: 0.85rem;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+            padding: 0.2rem 0.3rem;
+        }
+
+        /* ─── MODAL DE EXPORTAÇÃO ─── */
+        .export-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #aaa;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .steps-list { list-style: none; counter-reset: steps; }
+        .steps-list li {
+            counter-increment: steps;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        .steps-list li::before {
+            content: counter(steps);
+            background: var(--yellow);
+            color: #000;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ─── TOAST ─── */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--success);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: none;
+            z-index: 999;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ─── RESPONSIVO ─── */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <img src="assets/logo-expan.png" alt="Expan Diesel" onerror="this.style.display='none'">
+    <div class="header-title"><span>Expan Diesel</span> — Painel de Reparos</div>
+    <div class="header-actions">
+        <button class="btn btn-outline" onclick="abrirExportacao()">⬆ Exportar JSON</button>
+        <button class="btn btn-primary" onclick="abrirModalNovo()">+ Novo Reparo</button>
+    </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <span class="sidebar-label">Menu</span>
+        <button class="sidebar-link active" onclick="showView('dashboard', this)">
+            <span class="icon">📊</span> Dashboard
+        </button>
+        <button class="sidebar-link" onclick="showView('reparos', this)">
+            <span class="icon">🔧</span> Reparos
+        </button>
+        <span class="sidebar-label">Ferramentas</span>
+        <a href="consulta.html#EXP18121998" class="sidebar-link" target="_blank">
+            <span class="icon">🌐</span> Ver Consulta
+        </a>
+        <a href="etiquetas.html" class="sidebar-link" target="_blank">
+            <span class="icon">🏷️</span> Gerar Etiquetas
+        </a>
+        <span class="sidebar-label">Sistema</span>
+        <button class="sidebar-link" onclick="abrirExportacao()">
+            <span class="icon">⬆️</span> Exportar JSON
+        </button>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- DASHBOARD -->
+        <div class="view active" id="view-dashboard">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Dashboard</div>
+                    <div class="page-subtitle">Visão geral do catálogo de reparos</div>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-reparos">0</div>
+                    <div class="stat-label">Reparos Cadastrados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-injetores">0</div>
+                    <div class="stat-label">Porta-Injetores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-componentes">0</div>
+                    <div class="stat-label">Componentes</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="action-card" onclick="abrirModalNovo()">
+                    <div class="action-icon">➕</div>
+                    <div>
+                        <div class="action-title">Novo Reparo</div>
+                        <div class="action-desc">Cadastrar reparo no catálogo</div>
+                    </div>
+                </div>
+                <a href="etiquetas.html" class="action-card" target="_blank">
+                    <div class="action-icon">🏷️</div>
+                    <div>
+                        <div class="action-title">Gerar Etiquetas</div>
+                        <div class="action-desc">Criar etiquetas para impressão</div>
+                    </div>
+                </a>
+                <div class="action-card" onclick="abrirExportacao()">
+                    <div class="action-icon">📤</div>
+                    <div>
+                        <div class="action-title">Exportar para GitHub</div>
+                        <div class="action-desc">Baixar JSON para publicação</div>
+                    </div>
+                </div>
+                <a href="consulta.html#EXP18121998" class="action-card" target="_blank">
+                    <div class="action-icon">📱</div>
+                    <div>
+                        <div class="action-title">Testar Consulta</div>
+                        <div class="action-desc">Ver página do cliente</div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="table-wrapper">
+                <div class="table-toolbar">
+                    <span class="table-toolbar-title">Reparos Recentes</span>
+                    <button class="btn btn-outline btn-sm" onclick="showView('reparos', document.querySelector('[onclick*=reparos]'))">Ver todos →</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Componentes</th>
+                            <th>Compatíveis</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPAROS -->
+        <div class="view" id="view-reparos">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Reparos</div>
+                    <div class="page-subtitle">Gerencie todos os kits de reparo</div>
+                </div>
+                <button class="btn btn-primary" onclick="abrirModalNovo()">+ Novo Reparo</button>
+            </div>
+
+            <div class="table-wrapper">
+                <div class="table-toolbar">
+                    <span class="table-toolbar-title" id="reparos-count">0 reparos</span>
+                    <input type="text" class="search-input" placeholder="🔍 Buscar por código ou nome..." id="search-input" oninput="filtrarReparos()">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Tipo</th>
+                            <th>Nome</th>
+                            <th>Aplicação</th>
+                            <th>Componentes</th>
+                            <th>Compatíveis</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reparos-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- MODAL: NOVO / EDITAR REPARO -->
+<div class="modal-overlay" id="modal-reparo">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modal-title">Novo Reparo</div>
+            <button class="modal-close" onclick="fecharModal('modal-reparo')">✕</button>
+        </div>
+
+        <input type="hidden" id="edit-index">
+
+        <!-- DADOS BÁSICOS -->
+        <div class="form-section">
+            <div class="form-section-title">📋 Dados Básicos</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Código EXP *</label>
+                    <input type="text" class="form-input" id="f-codigo" placeholder="Ex: EXP18121998">
+                    <div class="form-hint">Sem espaços. Ex: EXP18121998</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Código para exibição *</label>
+                    <input type="text" class="form-input" id="f-codigo-exibido" placeholder="Ex: EXP 18121998">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Reparo *</label>
+                    <select class="form-input" id="f-tipo" onchange="atualizarLabelsTipo()">
+                        <option value="injetor">Injetor</option>
+                        <option value="valvula">Válvula</option>
+                        <option value="bomba">Bomba Injetora</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Referência do Componente</label>
+                    <input type="text" class="form-input" id="f-ref-componente" placeholder="Ex: Válvula 1418522055">
+                    <div class="form-hint">Número da peça principal a qual o reparo se destina</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nome do Reparo *</label>
+                <input type="text" class="form-input" id="f-nome" placeholder="Ex: Reparo da Válvula 1418522055">
+            </div>
+            <div class="form-group" id="grupo-aplicacao">
+                <label class="form-label" id="label-aplicacao">Motores Aplicáveis</label>
+                <input type="text" class="form-input" id="f-motores" placeholder="Ex: OM900, OM904 (separados por vírgula)">
+                <div class="form-hint">Deixe em branco se não se aplica a motores específicos</div>
+            </div>
+        </div>
+
+        <!-- COMPONENTES -->
+        <div class="form-section">
+            <div class="form-section-title">🔩 Componentes do Kit</div>
+            <div class="componente-list" id="componentes-list"></div>
+            <button class="add-btn" onclick="adicionarComponente()" style="margin-top:0.75rem">+ Adicionar Componente</button>
+        </div>
+
+        <!-- ITENS COMPATÍVEIS -->
+        <div class="form-section">
+            <div class="form-section-title" id="label-secao-compativel">🔢 Porta-Injetores Compatíveis</div>
+            <div class="tags-input-area" id="tags-area" onclick="document.getElementById('tag-input').focus()">
+                <input type="text" class="tag-input-field" id="tag-input"
+                    placeholder="Digite o código e pressione Enter ou Vírgula..."
+                    onkeydown="handleTagInput(event)">
+            </div>
+            <div class="form-hint" id="hint-compativel">Pressione Enter ou Vírgula após cada código. Ex: 0432191208</div>
+        </div>
+
+        <!-- AÇÕES -->
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;">
+            <button class="btn btn-outline" onclick="fecharModal('modal-reparo')">Cancelar</button>
+            <button class="btn btn-primary" onclick="salvarReparo()">💾 Salvar Reparo</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EXPORTAÇÃO -->
+<div class="modal-overlay" id="modal-export">
+    <div class="modal" style="max-width:600px">
+        <div class="modal-header">
+            <div class="modal-title">📤 Exportar para GitHub</div>
+            <button class="modal-close" onclick="fecharModal('modal-export')">✕</button>
+        </div>
+
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem">
+            Baixe o arquivo <strong style="color:var(--text)">reparos.json</strong> e suba no GitHub para atualizar a consulta pública dos clientes.
+        </p>
+
+        <ul class="steps-list" style="margin-bottom:1.5rem">
+            <li>Clique em <strong>Baixar JSON</strong> abaixo</li>
+            <li>Acesse <strong>github.com/AdrianoExpan/reparos</strong></li>
+            <li>Clique em <strong>Add file → Upload files</strong></li>
+            <li>Arraste o arquivo <strong>reparos.json</strong> para o GitHub</li>
+            <li>Clique em <strong>Commit changes</strong> — pronto!</li>
+        </ul>
+
+        <div class="export-box" id="export-preview">Carregando prévia...</div>
+
+        <div style="display:flex;gap:0.75rem;margin-top:1.25rem;justify-content:flex-end">
+            <button class="btn btn-outline" onclick="fecharModal('modal-export')">Fechar</button>
+            <button class="btn btn-success" onclick="baixarJSON()">⬇ Baixar reparos.json</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✅ Salvo com sucesso!</div>
+
+<script>
+// ──────────────────────────────────────────────
+// BASE DE DADOS (localStorage)
+// ──────────────────────────────────────────────
+
+const STORAGE_KEY = 'expan_reparos';
+
+function carregarDados() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+}
+
+function salvarDados(dados) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+}
+
+// Labels dinâmicos por tipo
+const TIPO_CONFIG = {
+    injetor: { label: 'Injetor', aplicacaoLabel: 'Motores Aplicáveis', compativelLabel: '🔢 Porta-Injetores Compatíveis', compativelHint: 'Ex: 0432191208', aplicacaoPlaceholder: 'Ex: OM900, OM904, OM906' },
+    valvula: { label: 'Válvula', aplicacaoLabel: 'Bombas Aplicáveis (opcional)', compativelLabel: '🔢 Bombas Injetoras Compatíveis', compativelHint: 'Ex: 0401276033', aplicacaoPlaceholder: 'Deixe em branco se aplicável a todas as bombas' },
+    bomba:   { label: 'Bomba', aplicacaoLabel: 'Modelos de Bomba', compativelLabel: '🔢 Bombas Compatíveis', compativelHint: 'Ex: 94000083056', aplicacaoPlaceholder: 'Ex: PE6P, A-pump' },
+    outro:   { label: 'Outro', aplicacaoLabel: 'Aplicação', compativelLabel: '🔢 Itens Compatíveis', compativelHint: 'Código do item compatível', aplicacaoPlaceholder: 'Descrição da aplicação' }
+};
+
+function atualizarLabelsTipo() {
+    const tipo = document.getElementById('f-tipo').value;
+    const cfg = TIPO_CONFIG[tipo] || TIPO_CONFIG.outro;
+    document.getElementById('label-aplicacao').textContent = cfg.aplicacaoLabel;
+    document.getElementById('label-secao-compativel').textContent = cfg.compativelLabel;
+    document.getElementById('hint-compativel').textContent = cfg.compativelHint;
+    document.getElementById('f-motores').placeholder = cfg.aplicacaoPlaceholder;
+}
+
+// Seed: garante que os reparos iniciais existem
+function seedInicial() {
+    const dados = carregarDados();
+    const ids = dados.map(d => d.id);
+
+    if (!ids.includes('EXP18121998')) {
+        dados.push({
+            id: 'EXP18121998',
+            codigoExibido: 'EXP 18121998',
+            tipo: 'injetor',
+            refComponente: '',
+            nome: 'Reparo para Injetores Mercedes-Benz',
+            motores: ['OM900', 'OM904', 'OM906', 'OM924', 'OM926'],
+            componentes: [
+                { descricao: 'Luva de vedação do bico (Menor)', java: '60805001', naut: '350071', bosch: 'F00ZW00003' },
+                { descricao: 'Anel do porta injetor', java: '30001016', naut: '330083', bosch: '2430210081' },
+                { descricao: 'Anel da conexão do porta injetor', java: '30001014', naut: '330115', bosch: '2430210082' }
+            ],
+            portaInjetores: [
+                '0432191208','0432191219','0432191220','0432191258','0432191259',
+                '0432191271','0432191285','0432191301','0432191302','0432191303',
+                '0432191387','0432193400','0432193416','0432193419','0432193421',
+                '0432193436','0432193444','0432193445','0432193449','0432193479','0432193481'
+            ],
+            imagens: [{ src: 'assets/img/injetor-explodido.jpg', legenda: 'Vista Explodida do Injetor' }, { src: 'assets/img/injetor-montagem.jpg', legenda: 'Montagem do Conjunto' }]
+        });
+    }
+
+    if (!ids.includes('EXP4002055')) {
+        dados.push({
+            id: 'EXP4002055',
+            codigoExibido: 'EXP 4002055',
+            tipo: 'valvula',
+            refComponente: 'Válvula 1418522055',
+            nome: 'Reparo da Válvula de Bomba Injetora',
+            motores: [],
+            componentes: [
+                { descricao: '6x Anéis do porta válvula', java: '', naut: '', bosch: '1418210050' },
+                { descricao: '6x Arruelas de vedação', java: '', naut: '', bosch: '1410105001' }
+            ],
+            portaInjetores: [
+                '94000083056','9400085024','0401276033','0405246209','0410472009'
+            ],
+            observacao: 'A Bosch não fabrica o kit de reparo — os itens são vendidos separadamente. Este é um dos reparos de maior demanda das bombas em linha e bomba "A".',
+            imagens: [{ src: 'assets/img/EXP4002055/valvula-diagrama.jpg', legenda: 'Diagrama Técnico da Válvula' }]
+        });
+    }
+
+    salvarDados(dados);
+}
+
+// ──────────────────────────────────────────────
+// NAVEGAÇÃO
+// ──────────────────────────────────────────────
+
+function showView(id, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    if (btn) {
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    renderizar();
+}
+
+// ──────────────────────────────────────────────
+// RENDERIZAÇÃO
+// ──────────────────────────────────────────────
+
+function renderizar() {
+    const dados = carregarDados();
+
+    // Stats
+    const totalInjetores = dados.reduce((a, r) => a + (r.portaInjetores?.length || 0), 0);
+    const totalComponentes = dados.reduce((a, r) => a + (r.componentes?.length || 0), 0);
+    document.getElementById('stat-reparos').textContent = dados.length;
+    document.getElementById('stat-injetores').textContent = totalInjetores;
+    document.getElementById('stat-componentes').textContent = totalComponentes;
+
+    // Dashboard table (últimos 5)
+    const dashTbody = document.getElementById('dashboard-table');
+    dashTbody.innerHTML = '';
+    if (dados.length === 0) {
+        dashTbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-icon">📭</div><div>Nenhum reparo cadastrado</div></td></tr>';
+    } else {
+        dados.slice(-5).reverse().forEach(r => {
+            const cfg = TIPO_CONFIG[r.tipo] || TIPO_CONFIG.outro;
+            dashTbody.innerHTML += `<tr>
+                <td><span class="badge badge-yellow">${r.codigoExibido || r.id}</span></td>
+                <td>${r.nome}</td>
+                <td><span class="badge badge-gray">${cfg.label}</span></td>
+                <td>${r.componentes?.length || 0} itens</td>
+                <td>${r.portaInjetores?.length || 0} registros</td>
+            </tr>`;
+        });
+    }
+
+    // Reparos table completa
+    renderTabelaReparos(dados);
+}
+
+function renderTabelaReparos(dados) {
+    const tbody = document.getElementById('reparos-table');
+    const count = document.getElementById('reparos-count');
+    count.textContent = dados.length + ' reparo' + (dados.length !== 1 ? 's' : '');
+    tbody.innerHTML = '';
+    if (dados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon">🔧</div><div>Nenhum reparo cadastrado.<br>Clique em "+ Novo Reparo" para começar.</div></td></tr>';
+        return;
+    }
+    dados.forEach((r, i) => {
+        const cfg = TIPO_CONFIG[r.tipo] || TIPO_CONFIG.outro;
+        const aplicacao = (r.motores || []).length > 0
+            ? r.motores.map(m => `<span class="badge badge-gray" style="margin:1px">${m}</span>`).join(' ')
+            : `<span style="color:var(--muted);font-size:0.8rem">${r.refComponente || '—'}</span>`;
+        tbody.innerHTML += `<tr>
+            <td><span class="badge badge-yellow">${r.codigoExibido || r.id}</span></td>
+            <td><span class="badge badge-gray">${cfg.label}</span></td>
+            <td>${r.nome}</td>
+            <td>${aplicacao}</td>
+            <td>${r.componentes?.length || 0} itens</td>
+            <td>${r.portaInjetores?.length || 0} registros</td>
+            <td>
+                <div style="display:flex;gap:0.4rem">
+                    <button class="btn btn-sm btn-outline" onclick="editarReparo(${i})" title="Editar">✏️</button>
+                    <a class="btn btn-sm btn-outline" href="consulta.html#${r.id}" target="_blank" title="Ver consulta">🌐</a>
+                    <a class="btn btn-sm btn-outline" href="etiquetas.html#${r.id}" target="_blank" title="Gerar etiqueta">🏷️</a>
+                    <button class="btn btn-sm btn-danger" onclick="excluirReparo(${i})" title="Excluir">🗑️</button>
+                </div>
+            </td>
+        </tr>`;
+    });
+}
+
+function filtrarReparos() {
+    const termo = document.getElementById('search-input').value.toLowerCase();
+    const dados = carregarDados().filter(r =>
+        r.id.toLowerCase().includes(termo) ||
+        r.nome.toLowerCase().includes(termo) ||
+        (r.codigoExibido || '').toLowerCase().includes(termo)
+    );
+    renderTabelaReparos(dados);
+}
+
+// ──────────────────────────────────────────────
+// MODAL REPARO
+// ──────────────────────────────────────────────
+
+function abrirModalNovo() {
+    document.getElementById('modal-title').textContent = 'Novo Reparo';
+    document.getElementById('edit-index').value = '';
+    document.getElementById('f-codigo').value = '';
+    document.getElementById('f-codigo-exibido').value = '';
+    document.getElementById('f-tipo').value = 'injetor';
+    document.getElementById('f-ref-componente').value = '';
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-motores').value = '';
+    document.getElementById('componentes-list').innerHTML = '';
+    limparTags();
+    atualizarLabelsTipo();
+    adicionarComponente();
+    abrirModal('modal-reparo');
+}
+
+function editarReparo(idx) {
+    const dados = carregarDados();
+    const r = dados[idx];
+    document.getElementById('modal-title').textContent = 'Editar Reparo';
+    document.getElementById('edit-index').value = idx;
+    document.getElementById('f-codigo').value = r.id;
+    document.getElementById('f-codigo-exibido').value = r.codigoExibido || r.id;
+    document.getElementById('f-tipo').value = r.tipo || 'injetor';
+    document.getElementById('f-ref-componente').value = r.refComponente || '';
+    document.getElementById('f-nome').value = r.nome;
+    document.getElementById('f-motores').value = (r.motores || []).join(', ');
+    document.getElementById('componentes-list').innerHTML = '';
+    (r.componentes || []).forEach(c => adicionarComponente(c));
+    limparTags();
+    (r.portaInjetores || []).forEach(p => adicionarTag(p));
+    atualizarLabelsTipo();
+    abrirModal('modal-reparo');
+}
+
+function salvarReparo() {
+    const codigo = document.getElementById('f-codigo').value.trim().toUpperCase().replace(/\s/g, '');
+    const codigoExibido = document.getElementById('f-codigo-exibido').value.trim();
+    const tipo = document.getElementById('f-tipo').value;
+    const refComponente = document.getElementById('f-ref-componente').value.trim();
+    const nome = document.getElementById('f-nome').value.trim();
+    const motoresRaw = document.getElementById('f-motores').value.trim();
+
+    if (!codigo || !nome) { alert('Preencha pelo menos o Código EXP e o Nome do Reparo.'); return; }
+
+    const motores = motoresRaw ? motoresRaw.split(',').map(m => m.trim()).filter(Boolean) : [];
+    const componentes = coletarComponentes();
+    const portaInjetores = coletarTags();
+
+    const reparo = { id: codigo, codigoExibido: codigoExibido || codigo, tipo, refComponente, nome, motores, componentes, portaInjetores };
+
+    const dados = carregarDados();
+    const idxEdit = document.getElementById('edit-index').value;
+    if (idxEdit !== '') {
+        dados[parseInt(idxEdit)] = reparo;
+    } else {
+        dados.push(reparo);
+    }
+    salvarDados(dados);
+    fecharModal('modal-reparo');
+    renderizar();
+    showToast('Reparo "' + reparo.codigoExibido + '" salvo com sucesso!');
+}
+
+function excluirReparo(idx) {
+    if (!confirm('Tem certeza que deseja excluir este reparo?')) return;
+    const dados = carregarDados();
+    dados.splice(idx, 1);
+    salvarDados(dados);
+    renderizar();
+    showToast('Reparo excluído.');
+}
+
+// ──────────────────────────────────────────────
+// COMPONENTES DINÂMICOS
+// ──────────────────────────────────────────────
+
+function adicionarComponente(dados = {}) {
+    const list = document.getElementById('componentes-list');
+    const div = document.createElement('div');
+    div.className = 'componente-item';
+    div.innerHTML = `
+        <button class="remove-btn" onclick="this.parentElement.remove()" title="Remover">✕</button>
+        <div class="form-group">
+            <label class="form-label">Descrição do Componente</label>
+            <input type="text" class="form-input comp-desc" placeholder="Ex: Luva de vedação do bico (Menor)" value="${dados.descricao || ''}">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Código Java</label>
+                <input type="text" class="form-input comp-java" placeholder="Ex: 60805001" value="${dados.java || ''}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Código Naut</label>
+                <input type="text" class="form-input comp-naut" placeholder="Ex: 350071" value="${dados.naut || ''}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Código Bosch</label>
+            <input type="text" class="form-input comp-bosch" placeholder="Ex: F00ZW00003" value="${dados.bosch || ''}">
+        </div>
+    `;
+    list.appendChild(div);
+}
+
+function coletarComponentes() {
+    return Array.from(document.querySelectorAll('.componente-item')).map(el => ({
+        descricao: el.querySelector('.comp-desc').value.trim(),
+        java: el.querySelector('.comp-java').value.trim(),
+        naut: el.querySelector('.comp-naut').value.trim(),
+        bosch: el.querySelector('.comp-bosch').value.trim()
+    })).filter(c => c.descricao);
+}
+
+// ──────────────────────────────────────────────
+// TAGS (porta-injetores)
+// ──────────────────────────────────────────────
+
+let currentTags = [];
+
+function limparTags() {
+    currentTags = [];
+    renderTags();
+}
+
+function adicionarTag(valor) {
+    const v = valor.trim().replace(/\s+/g, '');
+    if (v && !currentTags.includes(v)) {
+        currentTags.push(v);
+        renderTags();
+    }
+}
+
+function removerTag(idx) {
+    currentTags.splice(idx, 1);
+    renderTags();
+}
+
+function renderTags() {
+    const area = document.getElementById('tags-area');
+    const input = document.getElementById('tag-input');
+    // Limpa tags antigas mantendo o input
+    Array.from(area.querySelectorAll('.tag')).forEach(t => t.remove());
+    currentTags.forEach((t, i) => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerHTML = `${t} <span class="tag-remove" onclick="removerTag(${i})">×</span>`;
+        area.insertBefore(tag, input);
+    });
+}
+
+function handleTagInput(e) {
+    const input = e.target;
+    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+        e.preventDefault();
+        const val = input.value.trim().replace(/[,\s]/g, '');
+        if (val) { adicionarTag(val); input.value = ''; }
+    } else if (e.key === 'Backspace' && input.value === '' && currentTags.length > 0) {
+        removerTag(currentTags.length - 1);
+    }
+}
+
+function coletarTags() {
+    const inputVal = document.getElementById('tag-input').value.trim().replace(/[,\s]/g, '');
+    if (inputVal) adicionarTag(inputVal);
+    return [...currentTags];
+}
+
+// ──────────────────────────────────────────────
+// EXPORTAÇÃO JSON
+// ──────────────────────────────────────────────
+
+function gerarJSON() {
+    const dados = carregarDados();
+    const output = {
+        empresa: { nome: 'Expan Diesel', logo: 'assets/logo-expan.png', urlBase: 'https://AdrianoExpan.github.io/reparos/' },
+        reparos: dados.map(r => ({
+            id: r.id,
+            codigoExibido: r.codigoExibido,
+            nome: r.nome,
+            motores: r.motores || [],
+            componentes: r.componentes || [],
+            portaInjetores: r.portaInjetores || [],
+            imagens: [
+                { src: 'assets/img/injetor-explodido.jpg', legenda: 'Vista Explodida do Injetor' },
+                { src: 'assets/img/injetor-montagem.jpg', legenda: 'Montagem do Conjunto' }
+            ]
+        }))
+    };
+    return JSON.stringify(output, null, 2);
+}
+
+function abrirExportacao() {
+    document.getElementById('export-preview').textContent = gerarJSON();
+    abrirModal('modal-export');
+}
+
+function baixarJSON() {
+    const blob = new Blob([gerarJSON()], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'reparos.json';
+    a.click();
+    showToast('Arquivo reparos.json baixado!');
+}
+
+// ──────────────────────────────────────────────
+// UTILITÁRIOS
+// ──────────────────────────────────────────────
+
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✅ ' + msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+// Fechar modal clicando fora
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+// ──────────────────────────────────────────────
+// INICIALIZAÇÃO
+// ──────────────────────────────────────────────
+seedInicial();
+renderizar();
+</script>
+</body>
+</html>

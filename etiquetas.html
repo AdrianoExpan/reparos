@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Etiquetas — Expan Diesel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        /* ===== ADMIN INTERFACE ===== */
+        :root {
+            --primary: #E8B730;
+            --bg: #0D0D0D;
+            --panel: #1A1A1A;
+            --border: #333;
+            --text: #FFFFFF;
+            --muted: #888;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--panel);
+            border-bottom: 3px solid var(--primary);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header img { height: 40px; }
+        .header h1 { font-size: 1.3rem; font-weight: 700; }
+        .header h1 span { color: var(--primary); }
+        .header .back-link {
+            margin-left: auto;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .header .back-link:hover { color: var(--primary); }
+
+        .main-layout {
+            display: flex;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Controles */
+        .controls {
+            width: 320px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .control-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .control-card h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .field { margin-bottom: 1rem; }
+        .field:last-child { margin-bottom: 0; }
+        .field label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        .field input, .field select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.7rem 0.8rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            transition: border-color 0.2s;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+        .btn-primary:hover { background: #d1a52b; transform: translateY(-1px); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            margin-top: 0.5rem;
+        }
+        .btn-secondary:hover { background: rgba(232,183,48,0.1); }
+
+        /* Preview */
+        .preview-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .preview-title {
+            font-size: 0.85rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+        }
+        .preview-frame {
+            background: #2A2A2A;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 300px;
+        }
+        .preview-info {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-align: center;
+        }
+        .preview-info span { color: var(--primary); font-weight: 600; }
+
+        /* ===== ETIQUETA (PRETO E BRANCO) ===== */
+        .etiqueta {
+            width: 10cm;
+            height: 5cm;
+            background: #FFFFFF;
+            color: #000000;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            border: 1.5px solid #000;
+        }
+
+        .etiqueta-corpo {
+            display: flex;
+            flex: 1;
+            align-items: stretch;
+        }
+
+        /* Coluna esquerda: Código e Descrição em destaque */
+        .etiqueta-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0.3cm 0.4cm;
+        }
+        .etiqueta-codigo {
+            font-size: 18pt;
+            font-weight: 900;
+            letter-spacing: 1px;
+            line-height: 1;
+            margin-bottom: 0.2cm;
+            border-bottom: 2px solid #000;
+            padding-bottom: 0.15cm;
+        }
+        .etiqueta-descricao {
+            font-size: 8.5pt;
+            font-weight: 700;
+            margin-bottom: 0.15cm;
+            line-height: 1.3;
+            text-transform: uppercase;
+        }
+        .etiqueta-motores {
+            font-size: 7pt;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.2;
+        }
+
+        /* Coluna direita: QR Code */
+        .etiqueta-qr {
+            width: 3.8cm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-left: 1.5px solid #000;
+            padding: 0.2cm;
+            background: #fff;
+        }
+        .etiqueta-qr-container {
+            width: 2.8cm;
+            height: 2.8cm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .etiqueta-qr-container img,
+        .etiqueta-qr-container canvas {
+            max-width: 2.8cm !important;
+            max-height: 2.8cm !important;
+            width: 2.8cm !important;
+            height: 2.8cm !important;
+        }
+        .etiqueta-qr-texto {
+            font-size: 5pt;
+            font-weight: 600;
+            color: #000;
+            text-align: center;
+            margin-top: 0.1cm;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        /* Barra inferior */
+        .etiqueta-footer {
+            background: #000;
+            color: #FFF;
+            text-align: center;
+            font-size: 5.5pt;
+            font-weight: 600;
+            padding: 1.5mm 0;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== IMPRESSÃO ===== */
+        #print-area { display: none; }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0.5cm;
+            }
+
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+
+            .header, .main-layout { display: none !important; }
+
+            #print-area {
+                display: flex !important;
+                flex-wrap: wrap;
+                width: 20cm;
+                margin: 0 auto;
+                gap: 0;
+                align-content: flex-start;
+            }
+
+            .print-wrapper {
+                width: 10cm;
+                height: 5cm;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 0.5px dashed #aaa;
+                page-break-inside: avoid;
+            }
+
+            .etiqueta {
+                border: 1.5px solid #000;
+            }
+
+            .etiqueta-footer {
+                background: #000 !important;
+                color: #FFF !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <img src="assets/logo-expan.png" alt="Expan Diesel" onerror="this.style.display='none'">
+        <h1><span>Expan Diesel</span> — Gerador de Etiquetas</h1>
+        <a href="index.html" class="back-link">← Voltar ao Painel</a>
+    </header>
+
+    <div class="main-layout">
+        <aside class="controls">
+            <div class="control-card">
+                <h3>⚙️ Seleção de Reparo</h3>
+                <div class="field">
+                    <label>Selecione o Reparo do Catálogo</label>
+                    <select id="selectReparo" onchange="selecionarReparo(this.value)">
+                        <option value="">Carregando catálogo...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <h3>⚙️ Configurações de Impressão</h3>
+                <div class="field">
+                    <label>URL Base da Consulta</label>
+                    <input type="url" id="urlBase" value="https://AdrianoExpan.github.io/reparos/consulta.html">
+                </div>
+                <div class="field">
+                    <label>Código do Reparo (para URL)</label>
+                    <input type="text" id="codigoReparo" value="EXP18121998">
+                </div>
+                <div class="field">
+                    <label>Etiquetas por Folha A4</label>
+                    <select id="qtdEtiquetas">
+                        <option value="2">2 etiquetas (1×2)</option>
+                        <option value="4">4 etiquetas (2×2)</option>
+                        <option value="6">6 etiquetas (2×3)</option>
+                        <option value="8" selected>8 etiquetas (2×4)</option>
+                        <option value="10">10 etiquetas (2×5)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <h3>📋 Dados da Etiqueta</h3>
+                <div class="field">
+                    <label>Código Exibido</label>
+                    <input type="text" id="codigoExibido" value="EXP 18121998">
+                </div>
+                <div class="field">
+                    <label>Descrição</label>
+                    <input type="text" id="descricao" value="Kit de Reparo">
+                </div>
+
+            </div>
+
+            <button class="btn btn-primary" onclick="imprimirEtiquetas()">🖨️ Imprimir Etiquetas</button>
+            <button class="btn btn-secondary" onclick="atualizarPreview()">🔄 Atualizar Preview</button>
+        </aside>
+
+        <main class="preview-area">
+            <div class="preview-title">Pré-visualização da Etiqueta (10cm × 5cm)</div>
+            <div class="preview-frame">
+                <div id="preview-container"></div>
+            </div>
+            <div class="preview-info">
+                Dimensões: <span>10cm × 5cm</span> · Impressão: <span>Preto e Branco</span> · Sem logo (já presente na embalagem)
+            </div>
+        </main>
+    </div>
+
+    <div id="print-area"></div>
+
+    <script>
+        // ── CATÁLOGO COMPLETO DE REPAROS ──────────────────────────────────
+        let REPAROS_MAP = {
+            "EXP18121998": {
+                id: "EXP18121998",
+                codigoExibido: "EXP 18121998",
+                nome: "Reparo para Injetores Mercedes-Benz",
+                descricao: "Reparo que vai nos injetores Mercedes-Benz"
+            },
+            "EXP4002055": {
+                id: "EXP4002055",
+                codigoExibido: "EXP 4002055",
+                nome: "Reparo da Válvula de Bomba Injetora",
+                descricao: "Reparo da Válvula 1418522055 - Bomba Injetora"
+            }
+        };
+
+        function carregarCatalogo() {
+            // Merges localStorage if present
+            try {
+                const local = localStorage.getItem('expan_reparos');
+                if (local) {
+                    const parsed = JSON.parse(local);
+                    parsed.forEach(r => {
+                        if (r.id) {
+                            const key = r.id.toUpperCase().replace(/\s/g, '');
+                            REPAROS_MAP[key] = {
+                                id: r.id,
+                                codigoExibido: r.codigoExibido || r.id,
+                                nome: r.nome,
+                                descricao: r.refComponente ? `Reparo para ${r.refComponente}` : (r.nome || 'Kit de Reparo')
+                            };
+                        }
+                    });
+                }
+            } catch (e) {}
+
+            // Merges reparos.json
+            fetch('data/reparos.json')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.reparos) {
+                        data.reparos.forEach(r => {
+                            const key = r.id.toUpperCase().replace(/\s/g, '');
+                            REPAROS_MAP[key] = {
+                                id: r.id,
+                                codigoExibido: r.codigoExibido || r.id,
+                                nome: r.nome,
+                                descricao: r.descricao || r.nome
+                            };
+                        });
+                    }
+                    popularDropdown();
+                })
+                .catch(() => popularDropdown());
+
+            popularDropdown();
+        }
+
+        function popularDropdown() {
+            const select = document.getElementById('selectReparo');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="custom">-- Digitar manualmente --</option>';
+
+            Object.keys(REPAROS_MAP).forEach(key => {
+                const item = REPAROS_MAP[key];
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = `${item.codigoExibido} — ${item.nome}`;
+                select.appendChild(opt);
+            });
+
+            // Check URL hash or parameter
+            let targetId = window.location.hash.substring(1).toUpperCase().replace(/\s/g, '');
+            if (!targetId) {
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('reparo')) targetId = params.get('reparo').toUpperCase().replace(/\s/g, '');
+            }
+
+            if (targetId && REPAROS_MAP[targetId]) {
+                select.value = targetId;
+            } else if (currentVal && REPAROS_MAP[currentVal]) {
+                select.value = currentVal;
+            } else {
+                select.value = 'EXP18121998';
+            }
+
+            selecionarReparo(select.value);
+        }
+
+        function selecionarReparo(idKey) {
+            if (!idKey || idKey === 'custom' || !REPAROS_MAP[idKey]) return;
+            const item = REPAROS_MAP[idKey];
+            document.getElementById('codigoReparo').value = item.id;
+            document.getElementById('codigoExibido').value = item.codigoExibido || item.id;
+            document.getElementById('descricao').value = item.nome || item.descricao || 'Kit de Reparo';
+            atualizarPreview();
+        }
+
+        // Gera a URL completa para o QR Code
+        function gerarUrlQR() {
+            const base = document.getElementById('urlBase').value;
+            const codigo = document.getElementById('codigoReparo').value;
+            return base + '#' + codigo;
+        }
+
+        // Cria o HTML da etiqueta
+        function criarEtiquetaHTML() {
+            const codigo = document.getElementById('codigoExibido').value;
+            const descricao = document.getElementById('descricao').value;
+            return `
+                <div class="etiqueta-corpo">
+                    <div class="etiqueta-info">
+                        <div class="etiqueta-codigo">${codigo}</div>
+                        <div class="etiqueta-descricao">${descricao}</div>
+                    </div>
+                    <div class="etiqueta-qr">
+                        <div class="etiqueta-qr-container"></div>
+                        <div class="etiqueta-qr-texto">Escaneie o QR Code<br>acima para aplicação</div>
+                    </div>
+                </div>
+                <div class="etiqueta-footer">
+                    EXPAN DIESEL · Qualidade e Precisão em Reparos Diesel
+                </div>
+            `;
+        }
+
+        // Gera QR Code usando a biblioteca qrcodejs (gera <canvas> + <img>)
+        function inserirQRCode(container, url) {
+            container.innerHTML = '';
+            try {
+                new QRCode(container, {
+                    text: url,
+                    width: 150,
+                    height: 150,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (e) {
+                const img = document.createElement('img');
+                img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(url);
+                img.alt = 'QR Code';
+                img.style.width = '2.8cm';
+                img.style.height = '2.8cm';
+                container.appendChild(img);
+            }
+        }
+
+        // Atualiza o preview
+        function atualizarPreview() {
+            const container = document.getElementById('preview-container');
+            container.innerHTML = '';
+
+            const etiqueta = document.createElement('div');
+            etiqueta.className = 'etiqueta';
+            etiqueta.innerHTML = criarEtiquetaHTML();
+            container.appendChild(etiqueta);
+
+            const qrContainer = etiqueta.querySelector('.etiqueta-qr-container');
+            inserirQRCode(qrContainer, gerarUrlQR());
+        }
+
+        // Prepara e imprime
+        function imprimirEtiquetas() {
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = '';
+
+            const qtd = parseInt(document.getElementById('qtdEtiquetas').value);
+            const url = gerarUrlQR();
+
+            for (let i = 0; i < qtd; i++) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'print-wrapper';
+
+                const etiqueta = document.createElement('div');
+                etiqueta.className = 'etiqueta';
+                etiqueta.innerHTML = criarEtiquetaHTML();
+                wrapper.appendChild(etiqueta);
+                printArea.appendChild(wrapper);
+
+                const qrContainer = etiqueta.querySelector('.etiqueta-qr-container');
+                inserirQRCode(qrContainer, url);
+            }
+
+            // Aguardar renderização dos QR Codes
+            setTimeout(() => window.print(), 600);
+        }
+
+        // Listeners nos inputs para atualização automática
+        document.querySelectorAll('.controls input, .controls select').forEach(el => {
+            el.addEventListener('input', atualizarPreview);
+            el.addEventListener('change', atualizarPreview);
+        });
+
+        // Inicializa ao carregar a página
+        window.addEventListener('load', function() {
+            carregarCatalogo();
+            setTimeout(atualizarPreview, 300);
+        });
+    </script>
+</body>
+</html>
