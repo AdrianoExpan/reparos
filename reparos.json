@@ -1,0 +1,90 @@
+{
+  "empresa": {
+    "nome": "Expan Diesel",
+    "logo": "assets/logo-expan.png",
+    "urlBase": "https://AdrianoExpan.github.io/reparos/"
+  },
+  "reparos": [
+    {
+      "id": "EXP18121998",
+      "codigoExibido": "EXP 18121998",
+      "tipo": "injetor",
+      "refComponente": "",
+      "nome": "Reparo para Injetores Mercedes-Benz",
+      "descricao": "Reparo que vai nos injetores Mercedes-Benz",
+      "motores": ["OM900", "OM904", "OM906", "OM924", "OM926"],
+      "componentes": [
+        {
+          "descricao": "Luva de vedação do bico (Menor)",
+          "codigos": {
+            "java": "60805001",
+            "naut": "350071",
+            "bosch": "F00ZW00003"
+          }
+        },
+        {
+          "descricao": "Anel do porta injetor",
+          "codigos": {
+            "java": "30001016",
+            "naut": "330083",
+            "bosch": "2430210081"
+          }
+        },
+        {
+          "descricao": "Anel da conexão do porta injetor",
+          "codigos": {
+            "java": "30001014",
+            "naut": "330115",
+            "bosch": "2430210082"
+          }
+        }
+      ],
+      "portaInjetores": [
+        "0432191208", "0432191219", "0432191220", "0432191258",
+        "0432191259", "0432191271", "0432191285", "0432191301",
+        "0432191302", "0432191303", "0432191387", "0432193400",
+        "0432193416", "0432193419", "0432193421", "0432193436",
+        "0432193444", "0432193445", "0432193449", "0432193479",
+        "0432193481"
+      ],
+      "imagens": [
+        { "src": "assets/img/injetor-explodido.jpg", "legenda": "Vista Explodida do Injetor" },
+        { "src": "assets/img/injetor-montagem.jpg", "legenda": "Montagem do Conjunto" }
+      ]
+    },
+    {
+      "id": "EXP4002055",
+      "codigoExibido": "EXP 4002055",
+      "tipo": "valvula",
+      "refComponente": "Válvula 1418522055",
+      "nome": "Reparo da Válvula de Bomba Injetora",
+      "descricao": "Reparo da Válvula 1418522055 - Bomba Injetora em linha e bomba A",
+      "motores": [],
+      "componentes": [
+        {
+          "descricao": "6x Anéis do porta válvula",
+          "codigos": {
+            "java": "",
+            "naut": "",
+            "bosch": "1418210050"
+          }
+        },
+        {
+          "descricao": "6x Arruelas de vedação",
+          "codigos": {
+            "java": "",
+            "naut": "",
+            "bosch": "1410105001"
+          }
+        }
+      ],
+      "portaInjetores": [
+        "94000083056", "9400085024", "0401276033", "0405246209", "0410472009"
+      ],
+      "observacao": "A Bosch não fabrica o kit de reparo — os itens são vendidos separadamente. Este é um dos reparos de maior demanda das bombas em linha e bomba \"A\".",
+      "imagens": [
+        { "src": "assets/img/reparo_4002055.png", "legenda": "Diagrama Técnico da Válvula" }
+      ]
+    }
+  ]
+}
